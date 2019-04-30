@@ -47,10 +47,26 @@ namespace etcd.Provider.Service
         private  long ExecuteTiks = 0;//提前的时间间隔
         private long FulshTicks = DefaultTTL*STicks;//执行的间隔时间
         private bool isUpdate = true;//Update正常允许
+
+        string username = "";
+        string password = "";
+        string caCert = "";
+        string clientCert = "";
+        string clientKey = "";
+        bool publicRootCa = false;
+
         public static Uitletcd Sinlgeton
         {
             get { return Instance.Value; }
         }
+
+        public string Username { get { return username; } set { username = value; } }
+        public string Password { get { return password; } set { password = value; } }
+        public string CaCert { get { return caCert; } set { caCert = value; } }
+        public string ClientCert { get { return clientCert; } set { clientCert = value; } }
+        public string ClientKey { get { return clientKey; } set { clientKey = value; } }
+        public bool PublicRootCa { get { return publicRootCa; } set { publicRootCa = value; } }
+
         public Uitletcd()
         {
             Flush();
@@ -232,11 +248,11 @@ namespace etcd.Provider.Service
                                         string[] addr = urls[j].Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
                                         if (addr.Length == 2)
                                         {
-                                            client = new EtcdClient(addr[0], int.Parse(addr[1]));
+                                            client = new EtcdClient(addr[0], int.Parse(addr[1]),username,password,caCert,clientCert,clientKey,publicRootCa);
                                         }
                                         else if (addr.Length == 3)
                                         {
-                                            client = new EtcdClient(addr[1], int.Parse(addr[2]));
+                                            client = new EtcdClient(addr[1], int.Parse(addr[2]), username, password, caCert, clientCert, clientKey, publicRootCa);
                                         }
                                         if (client != null)
                                         {

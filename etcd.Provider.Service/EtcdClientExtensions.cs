@@ -91,6 +91,53 @@ namespace etcd.Provider.Service
         }
 
         /// <summary>
+        /// 获取系统服务
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="sysName"></param>
+        /// <returns></returns>
+        public static async Task<List<ServiceEntry>> GetServicesAsync(this EtcdClient client, string sysName)
+        {
+            string key = "/" + sysName + "/Services/";
+            var rsp =await client.GetRangeAsync(key);
+            List<ServiceEntry> lst = new List<ServiceEntry>();
+            foreach (var s in rsp.Kvs)
+            {
+                string serverKey = s.Key.FromGoogleString();
+                string serverV = s.Value.FromGoogleString();
+                string[] entityKey = serverKey.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                if (entityKey.Length == 4)
+                {
+                    var ser = JsonConvert.DeserializeObject<ServiceEntry>(serverV);
+                    lst.Add(ser);
+                }
+            }
+            return lst;
+        }
+
+        /// <summary>
+        /// 设置客户端连接使用的信息
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="caCert"></param>
+        /// <param name="clientCert"></param>
+        /// <param name="clientKey"></param>
+        /// <param name="publicRootCa"></param>
+        public static void SetInfo(string username = "", string password = "", string caCert = "", string clientCert = "", string clientKey = "", bool publicRootCa = false)
+        {
+            Uitletcd.Sinlgeton.Username = username;
+            Uitletcd.Sinlgeton.Password = password;
+            Uitletcd.Sinlgeton.CaCert = caCert;
+            Uitletcd.Sinlgeton.ClientCert = clientCert;
+            Uitletcd.Sinlgeton.ClientKey = clientKey;
+            Uitletcd.Sinlgeton.PublicRootCa = publicRootCa;
+        
+
+
+        }
+
+        /// <summary>
         /// 系统配置注册
         /// </summary>
         /// <param name="client"></param>

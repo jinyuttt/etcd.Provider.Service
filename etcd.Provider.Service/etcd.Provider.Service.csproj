@@ -2,7 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>etcd注册服务，方法扩展</Description>
+    <Description>etcd注册服务，方法扩展；个人提供任意使用，保留注释</Description>
+    <Authors>jinyu成都</Authors>
+    <PackageReleaseNotes />
   </PropertyGroup>
 
   <ItemGroup>
