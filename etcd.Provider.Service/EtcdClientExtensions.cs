@@ -132,9 +132,6 @@ namespace etcd.Provider.Service
             Uitletcd.Sinlgeton.ClientCert = clientCert;
             Uitletcd.Sinlgeton.ClientKey = clientKey;
             Uitletcd.Sinlgeton.PublicRootCa = publicRootCa;
-        
-
-
         }
 
         /// <summary>

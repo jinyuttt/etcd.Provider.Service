@@ -245,7 +245,7 @@ namespace etcd.Provider.Service
                                     for (int j = 0; j < urls.Count; j++)
                                     {
                                         EtcdClient client = null;
-                                        string[] addr = urls[j].Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                                        string[] addr = urls[j].Split(new char[] {':','/' }, StringSplitOptions.RemoveEmptyEntries);
                                         if (addr.Length == 2)
                                         {
                                             client = new EtcdClient(addr[0], int.Parse(addr[1]),username,password,caCert,clientCert,clientKey,publicRootCa);
