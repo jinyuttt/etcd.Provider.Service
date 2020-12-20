@@ -1,6 +1,6 @@
 # etcd.Provider.Service
 etcd Registration service  
-    提供服务注册
+    提供服务注册  
 	1.注册服务方法  
 	   etcd客户端的RegisterAsync方法  
 	2.获取服务方法  

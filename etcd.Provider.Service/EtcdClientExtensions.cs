@@ -64,6 +64,15 @@ namespace etcd.Provider.Service
                 string key ="/"+systemName + "/Services/" + entry.Name + "/" + entry.Id;
                 CancellationToken token = new CancellationToken();
 
+                if (!string.IsNullOrEmpty(Utiletcd.Sinlgeton.Password) || !string.IsNullOrEmpty(Utiletcd.Sinlgeton.Username))
+                {
+                    await client.AuthenticateAsync(new AuthenticateRequest()
+                    {
+                        Name= Utiletcd.Sinlgeton.Username,
+                         Password= Utiletcd.Sinlgeton.Password
+                    });
+                }
+
                 //申请TTL的ID
                 var lease = await client.LeaseGrantAsync(new LeaseGrantRequest() { ID = 0, TTL = (long)registration.Checks[0].Interval.TotalSeconds });
                 
@@ -134,7 +143,7 @@ namespace etcd.Provider.Service
         /// <param name="clientCert"></param>
         /// <param name="clientKey"></param>
         /// <param name="publicRootCa"></param>
-        public static void SetInfo(string username = "", string password = "", string caCert = "", string clientCert = "", string clientKey = "", bool publicRootCa = false)
+        public static void SetInfo(this EtcdClient client,string username = "", string password = "", string caCert = "", string clientCert = "", string clientKey = "", bool publicRootCa = false)
         {
             Utiletcd.Sinlgeton.Username = username;
             Utiletcd.Sinlgeton.Password = password;

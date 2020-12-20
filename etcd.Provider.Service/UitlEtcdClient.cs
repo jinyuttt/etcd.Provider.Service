@@ -264,8 +264,15 @@ namespace etcd.Provider.Service
                                         }
                                         if (client != null)
                                         {
-                                        
-                                            if (KeepAlive(client, kv.Value.LeaseID[ttl.Key]))
+                                        if (!string.IsNullOrEmpty(Utiletcd.Sinlgeton.Password) || !string.IsNullOrEmpty(Utiletcd.Sinlgeton.Username))
+                                        {
+                                            client.Authenticate(new AuthenticateRequest()
+                                            {
+                                                Name = Utiletcd.Sinlgeton.Username,
+                                                Password = Utiletcd.Sinlgeton.Password
+                                            });
+                                        }
+                                        if (KeepAlive(client, kv.Value.LeaseID[ttl.Key]))
                                             {
                                                 kv.Value.LastKeep[ttl.Key] = DateTime.Now.Ticks;
                                                 UpdateCluster(client);
