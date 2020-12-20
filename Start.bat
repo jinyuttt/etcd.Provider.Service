@@ -1,0 +1,1 @@
+etcd --config-file etcd.cfg
