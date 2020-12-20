@@ -19,13 +19,10 @@ using System;
 
 namespace etcd.Provider.Service
 {
-    /*
-    * 功能描述：AgentServiceCheck
-  /* =====================================
-* 创 建 者：jinyu 
-* 创建日期：2019 
-* 更新时间 ：2019
-* ==============================================================================*/
+
+    /// <summary>
+    /// 监控信息
+    /// </summary>
     public class AgentServiceCheck
     {
         /// <summary>

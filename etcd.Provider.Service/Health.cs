@@ -16,24 +16,40 @@
 #endregion
 
 using dotnet_etcd;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace etcd.Provider.Service
 {
-    /* ============================================================================== 
-* 功能描述：Health 
-* 创 建 者：jinyu 
-* 创建日期：2019 
-* 更新时间 ：2019
-* ==============================================================================*/
-  public  class Health
+
+    /// <summary>
+    /// 服务信息
+    /// </summary>
+    public  class Health
     {
+        /// <summary>
+        /// 当前使用的客户端；
+        /// 可以使用不同集群的
+        /// </summary>
         public List<EtcdClient> Clients { get; set; }
+
+        /// <summary>
+        /// 保持更新时间
+        /// </summary>
         public Dictionary<string,long> KeyTTL { get; set; }
-        public List<EtcdClientUrls> Urls { get; set; }
+
+        /// <summary>
+        /// 集群地址
+        /// </summary>
+        public EtcdClientUrls Urls { get; set; }
+
+        /// <summary>
+        /// 最后更新时间
+        /// </summary>
         public Dictionary<string,long> LastKeep { get; set; }
+
+        /// <summary>
+        /// 同步ID
+        /// </summary>
         public Dictionary<string, long> LeaseID { get; set; }
     }
 }

@@ -21,14 +21,16 @@ using System.Text;
 
 namespace etcd.Provider.Service
 {
-    /* ============================================================================== 
-* 功能描述：EtcdClientUls 
-* 创 建 者：jinyu 
-* 创建日期：2019 
-* 更新时间 ：2019
-* ==============================================================================*/
+   
+    /// <summary>
+    /// etcd信息
+    /// </summary>
   public  class EtcdClientUrls
     {
+
+        /// <summary>
+        /// 集群客户端
+        /// </summary>
       public  List<string> Urls = new List<string>();
     }
 }

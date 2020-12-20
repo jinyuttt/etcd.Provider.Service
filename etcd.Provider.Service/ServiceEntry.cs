@@ -19,12 +19,10 @@ using System.Collections.Generic;
 
 namespace etcd.Provider.Service
 {
-    /* ============================================================================== 
-* 功能描述：ServiceEntry 
-* 创 建 者：jinyu 
-* 创建日期：2019 
-* 更新时间 ：2019
-* ==============================================================================*/
+
+    /// <summary>
+    /// 注册存储实体
+    /// </summary>
     public class ServiceEntry
     {
         /// <summary>

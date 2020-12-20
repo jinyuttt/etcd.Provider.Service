@@ -26,23 +26,27 @@ using System.Collections.Concurrent;
 
 namespace etcd.Provider.Service
 {
-    /* ============================================================================== 
-* 功能描述：Uitletcd.Provider.ServiceClient 
-* 创 建 者：jinyu 
-* 创建日期：2019 
-* 更新时间 ：2019
-* ==============================================================================*/
-    public  class Uitletcd
+  
+   
+    /// <summary>
+    /// 注册更新
+    /// </summary>
+    public  class Utiletcd
     {
 
         private const int DefaultTTL = 30;//默认上报时间
+
+        /// <summary>
+        /// 同一集群内的服务信息
+        /// </summary>
         readonly ConcurrentDictionary<ulong, Health> dic = new ConcurrentDictionary<ulong, Health>();
+
         private long minTTL = DefaultTTL;//30s
         private const long STicks = 10000000;
        
         //记录更新的数据
         private readonly ConcurrentDictionary<string, long> udateID = new ConcurrentDictionary<string, long>();
-        private readonly static Lazy<Uitletcd> Instance = new Lazy<Uitletcd>();
+        private readonly static Lazy<Utiletcd> Instance = new Lazy<Utiletcd>();
         private long LastKeep = DateTime.Now.Ticks;//上次更新时间
         private  long ExecuteTiks = 0;//提前的时间间隔
         private long FulshTicks = DefaultTTL*STicks;//执行的间隔时间
@@ -55,19 +59,24 @@ namespace etcd.Provider.Service
         string clientKey = "";
         bool publicRootCa = false;
 
-        public static Uitletcd Sinlgeton
+        public static Utiletcd Sinlgeton
         {
             get { return Instance.Value; }
         }
 
         public string Username { get { return username; } set { username = value; } }
+
         public string Password { get { return password; } set { password = value; } }
+
         public string CaCert { get { return caCert; } set { caCert = value; } }
+
         public string ClientCert { get { return clientCert; } set { clientCert = value; } }
+
         public string ClientKey { get { return clientKey; } set { clientKey = value; } }
+
         public bool PublicRootCa { get { return publicRootCa; } set { publicRootCa = value; } }
 
-        public Uitletcd()
+        public Utiletcd()
         {
             Flush();
             Update();
@@ -75,12 +84,12 @@ namespace etcd.Provider.Service
         }
 
         /// <summary>
-        /// 保持
+        /// 保持服务活动
         /// </summary>
-        /// <param name="client"></param>
-        /// <param name="key"></param>
-        /// <param name="ttl"></param>
-        /// <param name="ID"></param>
+        /// <param name="client">客户端</param>
+        /// <param name="key">服务Key</param>
+        /// <param name="ttl">服务更新时间</param>
+        /// <param name="ID">申请ID</param>
         public async Task AddKeepAliveAsync(EtcdClient client, string key, long ttl, long ID)
         {
             //获取集群列表
@@ -109,7 +118,7 @@ namespace etcd.Provider.Service
                 {
                     Clients = new List<EtcdClient>(),
                     KeyTTL = new Dictionary<string, long>(),
-                    Urls = new List<EtcdClientUrls>(),
+                  
                     LastKeep = new Dictionary<string, long>(),
                     LeaseID = new Dictionary<string, long>()
                 };
@@ -120,7 +129,7 @@ namespace etcd.Provider.Service
                     {
                         urls.Urls.Add(c);
                     }
-                    health.Urls.Add(urls);
+                    health.Urls=urls;
                 }
                 //
                 health.Clients.Add(client);
@@ -177,7 +186,6 @@ namespace etcd.Provider.Service
             Thread flush = new Thread(() =>
             {
                 int num = 0;
-                int cur = 0;
                 while (true)
                 {
                     Thread.Sleep(2000);//2秒计算
@@ -218,7 +226,7 @@ namespace etcd.Provider.Service
                         
                         long cur = kv.Value.LastKeep[ttl.Key] / STicks+ttl.Value;//下次需要执行的时间
                         long next = ticks / STicks + minTTL;//下次任务时间
-                        if (next>cur )
+                        if (next>cur)
                         {
                             //如果等不到了就更新
                             for (int i = 0; i < kv.Value.Clients.Count; i++)
@@ -232,6 +240,7 @@ namespace etcd.Provider.Service
                                 }
                                 else
                                 {
+                                    //不成功则移除
                                     kv.Value.Clients.RemoveAt(i);
                                     c.Dispose();
                                     i--;
@@ -239,32 +248,33 @@ namespace etcd.Provider.Service
                             }
                             if (!isSucess)
                             {
-                                for (int i = 0; i < kv.Value.Urls.Count; i++)
-                                {
-                                    var urls = kv.Value.Urls[i].Urls;
-                                    for (int j = 0; j < urls.Count; j++)
+                               
+                                    var urls = kv.Value.Urls;
+                                    for (int j = 0; j < urls.Urls.Count; j++)
                                     {
                                         EtcdClient client = null;
-                                        string[] addr = urls[j].Split(new char[] {':','/' }, StringSplitOptions.RemoveEmptyEntries);
+                                        string[] addr = urls.Urls[j].Split(new char[] {':','/' }, StringSplitOptions.RemoveEmptyEntries);
                                         if (addr.Length == 2)
                                         {
-                                            client = new EtcdClient(addr[0], int.Parse(addr[1]),username,password,caCert,clientCert,clientKey,publicRootCa);
+                                            client = new EtcdClient(addr[0], int.Parse(addr[1]),caCert,clientCert,clientKey,publicRootCa);
                                         }
                                         else if (addr.Length == 3)
                                         {
-                                            client = new EtcdClient(addr[1], int.Parse(addr[2]), username, password, caCert, clientCert, clientKey, publicRootCa);
+                                            client = new EtcdClient(addr[1], int.Parse(addr[2]),  caCert, clientCert, clientKey, publicRootCa);
                                         }
                                         if (client != null)
                                         {
+                                        
                                             if (KeepAlive(client, kv.Value.LeaseID[ttl.Key]))
                                             {
                                                 kv.Value.LastKeep[ttl.Key] = DateTime.Now.Ticks;
                                                 UpdateCluster(client);
-                                                break;
+                                               
+                                                break;//成功退出
                                             }
                                         }
                                     }
-                                }
+                                
                             }
                         }
                     }
@@ -279,26 +289,24 @@ namespace etcd.Provider.Service
         private  void UpdateCluster(EtcdClient client)
         {
            
-                MemberListRequest request = new MemberListRequest();
-                var rsp = client.MemberList(request);
-               
-                if (dic.ContainsKey(rsp.Header.ClusterId))
+             MemberListRequest request = new MemberListRequest();
+            var rsp = client.MemberList(request);
+            if (dic.ContainsKey(rsp.Header.ClusterId))
+            {
+                Health health = dic[rsp.Header.ClusterId];
+                health.Clients.Add(client);
+                health.Urls.Urls.Clear();
+                foreach (var kv in rsp.Members)
                 {
-                    Health health = dic[rsp.Header.ClusterId];
-                    
-                    health.Clients.Add(client);
-                    health.Urls.Clear();
-                    foreach (var kv in rsp.Members)
+                    EtcdClientUrls urls = new EtcdClientUrls();
+                    foreach (var c in kv.ClientURLs)
                     {
-                        EtcdClientUrls urls = new EtcdClientUrls();
-                        foreach (var c in kv.ClientURLs)
-                        {
-                            urls.Urls.Add(c);
-                        }
-                        health.Urls.Add(urls);
+                        urls.Urls.Add(c);
                     }
-                    health.Clients.Add(client);
+                    health.Urls = urls;
                 }
+                health.Clients.Add(client);
+            }
                
             
 

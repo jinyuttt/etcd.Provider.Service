@@ -24,12 +24,12 @@ using System.Threading;
 using System.Threading.Tasks;
 namespace etcd.Provider.Service
 {
-    /* ============================================================================== 
-* 功能描述：Utiletcd.Provider.ServiceClient 
-* 创 建 者：jinyu 
-* 创建日期：2019 
-* 更新时间 ：2019
-* ==============================================================================*/
+
+   
+    /// <summary>
+    /// 注册
+    /// </summary>
+   
     public static class EtcdClientExtensions
     {
 
@@ -63,11 +63,21 @@ namespace etcd.Provider.Service
                 var val = JsonConvert.SerializeObject(entry);
                 string key ="/"+systemName + "/Services/" + entry.Name + "/" + entry.Id;
                 CancellationToken token = new CancellationToken();
+
+                //申请TTL的ID
                 var lease = await client.LeaseGrantAsync(new LeaseGrantRequest() { ID = 0, TTL = (long)registration.Checks[0].Interval.TotalSeconds });
+                
+                //加入节点
                 var rsp = await client.PutAsync(new PutRequest() { Key = key.ToGoogleString(), Value = val.ToGoogleString(), Lease = lease.ID });
-                client.LeaseKeepAlive(new LeaseKeepAliveRequest() { ID = lease.ID }, Watch, token);
+                
+                //保持激活
+                await client.LeaseKeepAlive(new LeaseKeepAliveRequest() { ID = lease.ID }, Watch, token);
+
+                //添加配置
                 await AddConfigAsync(client, systemName,registration);
-                await Uitletcd.Sinlgeton.AddKeepAliveAsync(client, key, (long)registration.Checks[0].Interval.TotalSeconds, lease.ID);
+
+                //服务加入更新列表
+                await Utiletcd.Sinlgeton.AddKeepAliveAsync(client, key, (long)registration.Checks[0].Interval.TotalSeconds, lease.ID);
                 Init(client, key);
                 return true;
             }catch(Exception ex)
@@ -126,20 +136,20 @@ namespace etcd.Provider.Service
         /// <param name="publicRootCa"></param>
         public static void SetInfo(string username = "", string password = "", string caCert = "", string clientCert = "", string clientKey = "", bool publicRootCa = false)
         {
-            Uitletcd.Sinlgeton.Username = username;
-            Uitletcd.Sinlgeton.Password = password;
-            Uitletcd.Sinlgeton.CaCert = caCert;
-            Uitletcd.Sinlgeton.ClientCert = clientCert;
-            Uitletcd.Sinlgeton.ClientKey = clientKey;
-            Uitletcd.Sinlgeton.PublicRootCa = publicRootCa;
+            Utiletcd.Sinlgeton.Username = username;
+            Utiletcd.Sinlgeton.Password = password;
+            Utiletcd.Sinlgeton.CaCert = caCert;
+            Utiletcd.Sinlgeton.ClientCert = clientCert;
+            Utiletcd.Sinlgeton.ClientKey = clientKey;
+            Utiletcd.Sinlgeton.PublicRootCa = publicRootCa;
         }
 
         /// <summary>
         /// 系统配置注册
         /// </summary>
-        /// <param name="client"></param>
-        /// <param name="sysName"></param>
-        /// <param name="registration"></param>
+        /// <param name="client">客户端</param>
+        /// <param name="sysName">系统名称</param>
+        /// <param name="registration">配置信息</param>
         /// <returns></returns>
         private static async Task AddConfigAsync(EtcdClient client, string sysName, AgentServiceRegistration registration)
         {
@@ -151,8 +161,10 @@ namespace etcd.Provider.Service
             EtcdConfig config = new EtcdConfig();
             if (rsp.Kvs.Count == 0)
             {
-                var lst = new List<AgentServiceRegistration>();
-                lst.Add(registration);
+                var lst = new List<AgentServiceRegistration>
+                {
+                    registration
+                };
                 config.Services = lst;
             }
             else
@@ -182,11 +194,11 @@ namespace etcd.Provider.Service
         /// <summary>
         /// 监视Key
         /// </summary>
-        /// <param name="client"></param>
-        /// <param name="sytemName"></param>
-        private static void Init(EtcdClient  client, string sytemName)
+        /// <param name="client">客户端</param>
+        /// <param name="key">服务Key</param>
+        private static void Init(EtcdClient  client, string key)
         {
-            client.Watch(sytemName, new Action<WatchResponse>(p =>
+            client.Watch(key, new Action<WatchResponse>(p =>
             {
                 foreach (var e in p.Events)
                 {
@@ -199,7 +211,7 @@ namespace etcd.Provider.Service
                     else if (e.Type == Mvccpb.Event.Types.EventType.Put)
                     {
                         //服务加入
-                        Console.WriteLine("移除：" + e.Kv.Key.FromGoogleString());
+                        Console.WriteLine("加入：" + e.Kv.Key.FromGoogleString());
                     }
                 }
 

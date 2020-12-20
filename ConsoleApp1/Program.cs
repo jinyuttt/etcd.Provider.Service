@@ -7,7 +7,7 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            EtcdClient etcdClient = new EtcdClient("localhost", 2379);
+            EtcdClient etcdClient = new EtcdClient("https://127.0.0.1", 2379);
             AgentServiceRegistration registration = new AgentServiceRegistration()
             {
                 Address = "127.0.0.1",
@@ -16,7 +16,8 @@ namespace ConsoleApp1
                 Port = 5555,
                 Version = "1.0",
             };
-             etcdClient.RegisterAsync(registration);
+          
+           etcdClient.RegisterAsync(registration);
             Console.Read();
         }
     }

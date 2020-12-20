@@ -20,13 +20,11 @@ using System.Text;
 
 namespace etcd.Provider.Service
 {
-    /* ============================================================================== 
-* 功能描述：Uitl 
-* 创 建 者：jinyu 
-* 创建日期：2019 
-* 更新时间 ：2019
-* ==============================================================================*/
-    public static class Uitl
+  
+    /// <summary>
+    /// 工具
+    /// </summary>
+    public static class Util
     {
 
         /// <summary>
@@ -36,7 +34,7 @@ namespace etcd.Provider.Service
         /// <returns></returns>
         public static ByteString ToGoogleString(this string str)
         {
-          return  ByteString.CopyFrom(str, Encoding.Default);
+          return  ByteString.CopyFrom(str, Encoding.UTF8);
         }
 
         /// <summary>
@@ -46,7 +44,7 @@ namespace etcd.Provider.Service
         /// <returns></returns>
         public static string FromGoogleString(this ByteString googleString)
         {
-          return  googleString.ToString(Encoding.Default);
+          return  googleString.ToString(Encoding.UTF8);
         }
 
         /// <summary>

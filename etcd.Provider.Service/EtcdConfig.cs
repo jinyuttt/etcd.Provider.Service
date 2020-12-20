@@ -21,16 +21,14 @@ using System.Text;
 
 namespace etcd.Provider.Service
 {
-    /* ============================================================================== 
-* 功能描述：EtcdConfig 
-* 创 建 者：jinyu 
-* 创建日期：2019 
-* 更新时间 ：2019
-* ==============================================================================*/
+ 
+    /// <summary>
+    /// 服务注册信息配置
+    /// </summary>
    public class EtcdConfig
     {
         /// <summary>
-        /// 
+        /// 服务集合
         /// </summary>
         public IEnumerable<AgentServiceRegistration> Services { get; set; }
     }
